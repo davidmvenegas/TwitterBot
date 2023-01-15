@@ -10,6 +10,7 @@ def get_image():
     image_URL = image_with_link['PromptImagePath']
     return image_caption, image_URL
 
+
 def api():
     auth = tweepy.OAuthHandler("K3sDjWRTgZWIYAvb2dBKsn1xm", "oak5WmF2KUT82W2rWn4swdOiCy39IfhyqU0Mhv4JUN2gylu1fg")
     auth.set_access_token("1614455148125749250-yaiyhsYENkqgsK7l6ZgMjjogOwjXyl", "o9hHpOgWmYsGO90TX9U92JtWf4ynntwRFGsjbvi4NLzEz")
@@ -23,7 +24,7 @@ def tweet(api: tweepy.API, message: str, image_path=None):
         api.update_status(message)
 
     print('Tweeted successfully!')
- 
+
 
 image_caption, image_URL = get_image()
 
