@@ -1,14 +1,34 @@
 import pip._vendor.requests as requests
+import shutil
 import tweepy
 
-def get_image():
-    images_request = requests.get('https://dalle2.gallery/api/images/aggregated?pagesize=20&page=0&random=true', verify=False)
-    images_as_json = images_request.json()
-    image_with_link = next(item for item in images_as_json if item['Caption'] is not None and item['PromptImagePath'] is not None)
 
-    image_caption = image_with_link['Caption']
-    image_URL = image_with_link['PromptImagePath']
-    return image_caption, image_URL
+def get_caption_and_image():
+    while True:
+        images_request = requests.get('https://dalle2.gallery/api/images/aggregated?pagesize=20&page=0&random=true', verify=False)
+        images_as_json = images_request.json()
+
+        for image in images_as_json:
+            if image['Caption'] is not None and image['PromptImagePath'] is not None:
+                image_caption = image['Caption']
+                image_URL = image['PromptImagePath']
+
+                return image_caption, image_URL
+
+
+def download_image(image_url):
+    filename = "pic.webp"
+    r = requests.get(image_url, stream=True)
+
+    if r.status_code == 200:
+        r.raw.decode_content = True
+
+        with open(filename, 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+
+        print('Image successfully Downloaded')
+    else:
+        print('Image Couldn\'t be retrieved')
 
 
 def api():
@@ -26,9 +46,11 @@ def tweet(api: tweepy.API, message: str, image_path=None):
     print('Tweeted successfully!')
 
 
-image_caption, image_URL = get_image()
+def run_bot():
+    image_caption, image_URL = get_caption_and_image()
+    download_image(image_URL)
+    tweet(api(), image_caption, 'pic.webp')
 
-print(image_caption)
-print(image_URL)
 
-tweet(api(), 'This is my first tweet as a bot, Hello World')
+if __name__ == "__main__":
+    run_bot()
