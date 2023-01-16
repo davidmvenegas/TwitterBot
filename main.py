@@ -1,9 +1,10 @@
 import requests
-import shutil
 import tweepy
+import shutil
+from PIL import Image
 
 
-def main(event, context):
+def main():
 
     def get_caption_and_image():
         while True:
@@ -15,20 +16,35 @@ def main(event, context):
                     image_caption = image['Caption']
                     image_URL = image['PromptImagePath']
 
-                    return image_caption, image_URL
+                    if (is_not_transparent(image_URL)):
+                        return image_caption
 
 
-    def download_image(image_url):
-        filename = "/tmp/pic.webp"
-        r = requests.get(image_url, stream=True)
+    def is_not_transparent(image_URL):
+        r = requests.get(image_URL, stream=True)
 
         if r.status_code == 200:
             r.raw.decode_content = True
 
-            with open(filename, 'wb') as f:
+            with open('tmp/pic.webp', 'wb') as f:
                 shutil.copyfileobj(r.raw, f)
-
             print('Image successfully Downloaded')
+
+            img = Image.open('tmp/pic.webp')
+
+            if img.info.get("transparency", None) is not None:
+                return False
+            if img.mode == "P":
+                transparent = img.info.get("transparency", -1)
+                for _, index in img.getcolors():
+                    if index == transparent:
+                        return False
+            elif img.mode == "RGBA":
+                extrema = img.getextrema()
+                if extrema[3][0] < 255:
+                    return False
+            return True
+
         else:
             print('Image Couldn\'t be retrieved')
 
@@ -48,6 +64,7 @@ def main(event, context):
         print('Tweeted successfully!')
 
 
-    image_caption, image_URL = get_caption_and_image()
-    download_image(image_URL)
-    tweet(api(), image_caption, '/tmp/pic.webp')
+    image_caption = get_caption_and_image()
+    tweet(api(), image_caption, 'tmp/pic.webp')
+
+main()
