@@ -50,8 +50,8 @@ def main():
 
 
     def api():
-        auth = tweepy.OAuthHandler("K3sDjWRTgZWIYAvb2dBKsn1xm", "oak5WmF2KUT82W2rWn4swdOiCy39IfhyqU0Mhv4JUN2gylu1fg")
-        auth.set_access_token("1614455148125749250-yaiyhsYENkqgsK7l6ZgMjjogOwjXyl","o9hHpOgWmYsGO90TX9U92JtWf4ynntwRFGsjbvi4NLzEz")
+        auth = tweepy.OAuthHandler('__API_KEY__', '__API_KEY_SECRET__')
+        auth.set_access_token('__ACCESS_TOKEN__', '__ACCESS_TOKEN_SECRET__')
         return tweepy.API(auth)
 
 
